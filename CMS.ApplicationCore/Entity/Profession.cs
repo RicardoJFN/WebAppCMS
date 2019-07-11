@@ -4,17 +4,17 @@ using System.Text;
 
 namespace CMS.ApplicationCore.Entity
 {
-    public class Client
+    public class Profession
     {
-        public Client()
+        public Profession()
         {
 
         }
+
         public int Id { get; set; }
         public string Name { get; set; }
-        public long CCNumber { get; set; }
-        public ICollection<Contact> Contacts { get; set; }
-        public Address Address { get; set; }
+        public string Description { get; set; }
+        public string Code { get; set; }
         public ICollection<ProfessionClient> ProfessionsClients { get; set; }
     }
 }

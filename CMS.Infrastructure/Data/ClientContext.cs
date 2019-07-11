@@ -1,4 +1,5 @@
 ﻿using CMS.ApplicationCore.Entity;
+using CMS.Infrastructure.EntityConfig;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -23,34 +24,21 @@ namespace CMS.Infrastructure.Data
             modelBuilder.Entity<Contact>()
                 .ToTable("Contact");
 
-            #region Client Configuration
-            modelBuilder.Entity<Client>()
-                .Property(e => e.CCNumber)
-                .IsRequired();
+            modelBuilder.Entity<Address>()
+                .ToTable("Address");
 
-            modelBuilder.Entity<Client>()
-                .Property(e => e.Name)
-                .HasColumnType("varchar(200)")
-                .IsRequired();
-            #endregion
+            modelBuilder.Entity<Profession>()
+                .ToTable("Profession");
 
-            #region Contact Configuration
-            modelBuilder.Entity<Contact>()
-                .Property(e => e.Name)
-                .HasColumnType("varchar(200)")
-                .IsRequired();
+            modelBuilder.Entity<ProfessionClient>()
+                .ToTable("ProfessionClient");
 
-            modelBuilder.Entity<Contact>()
-                .Property(e => e.Email)
-                .HasColumnType("varchar(100)")
-                .IsRequired();
-
-            modelBuilder.Entity<Contact>()
-                .Property(e => e.PhoneNumber)
-                .HasColumnType("varchar(15)");
-            #endregion
-
-
+            modelBuilder.ApplyConfiguration(new ClientMap());
+            modelBuilder.ApplyConfiguration(new ContactMap());
+            modelBuilder.ApplyConfiguration(new ProfessionMap());
+            modelBuilder.ApplyConfiguration(new AddressMap());
+            modelBuilder.ApplyConfiguration(new ProfessionClientMap());
+            modelBuilder.ApplyConfiguration(new MenuMap());
         }
     }
 }
