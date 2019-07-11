@@ -9,6 +9,7 @@ namespace CMS.ApplicationCore.Entity
         public int Id { get; set; }
         public string Name { get; set; }
         public long CCNumber { get; set; }
+        public ICollection<Contact> Contacts { get; set; }
 
         public Client()
         {
