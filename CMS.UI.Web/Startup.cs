@@ -1,4 +1,10 @@
+using CMS.ApplicationCore.Interfaces.Repository;
+using CMS.ApplicationCore.Interfaces.Services;
+using CMS.ApplicationCore.Services;
 using CMS.Infrastructure.Data;
+using CMS.Infrastructure.Helpers;
+using CMS.Infrastructure.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -7,6 +13,8 @@ using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace CMS.UI.Web
 {
@@ -22,10 +30,47 @@ namespace CMS.UI.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
 
             services.AddDbContext<ClientContext>(options => 
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            #region AddTransient Repository
+            services.AddTransient<IClientRepository, ClientRepository>();
+            services.AddTransient<IContactRepository, ContactRepository>();
+            services.AddTransient<IProfessionRepository, ProfessionRepository>();
+            services.AddTransient<ILoginRepository, LoginRepository>();
+            #endregion
+
+            #region AddTransient Service
+            services.AddTransient<IClientService, ClientService>();
+            services.AddTransient<IContactService, ContactService>();
+            services.AddTransient<IProfessionService, ProfessionService>();
+            services.AddTransient<LoginService, LoginService>();
+            #endregion
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -51,6 +96,7 @@ namespace CMS.UI.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {
