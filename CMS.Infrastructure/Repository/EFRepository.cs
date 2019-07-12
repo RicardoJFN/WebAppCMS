@@ -3,6 +3,7 @@ using CMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
@@ -18,7 +19,7 @@ namespace CMS.Infrastructure.Repository
             this.context = context;
         }
 
-        public TEntity Add(TEntity entity)
+        public virtual TEntity Add(TEntity entity)
         {
             context.Set<TEntity>().Add(entity);
             context.SaveChanges();
@@ -27,27 +28,34 @@ namespace CMS.Infrastructure.Repository
 
         public IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return context.Set<TEntity>()
+                .Where(predicate)
+                .AsEnumerable();
         }
 
         public IEnumerable<TEntity> GetAll()
         {
-            throw new NotImplementedException();
+            return context.Set<TEntity>()
+                .AsEnumerable();
         }
 
-        public TEntity GetById(int id)
+        public virtual TEntity GetById(int id)
         {
-            throw new NotImplementedException();
+            return context.Set<TEntity>()
+                .Find(id);
         }
 
         public void Remove(TEntity entity)
         {
-            throw new NotImplementedException();
+            context.Set<TEntity>()
+                .Remove(entity);
+            context.SaveChanges();
         }
 
-        public void Update(TEntity entity)
+        public virtual void Update(TEntity entity)
         {
-            context.Entry(entity).State = EntityState.Modified;
+            context.Entry(entity)
+                .State = EntityState.Modified;
             context.SaveChanges();
         }
     }
